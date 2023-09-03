@@ -1,15 +1,20 @@
+import time
 from constant_variable import BATTLES, USERNAME, OWNER, BOT_MODE, FORMATS
 from sender import Sender
 from Battle.showdown_battle import Battle
+from Bots.random_bot import RandomBot
 import logger
 import constant_variable
 
 
-def check_battle(battle_list: list[Battle], battle_id: str):
+def get_battle_from_battles(battle_list: list[Battle], battle_id: str):
     return next((battle for battle in battle_list if battle.battle_id == battle_id), None)
 
 
 async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
+    """This function handles all the down messages and sends them to the correct function in the program.
+        If the message is about battle, its sends it to handle_showdown_battle_messages
+        Specificly connect, start battling and send messages and commands."""
     sender = Sender()
     room, command, *rest = message.split('|')
     print("room: ", room)
@@ -24,11 +29,9 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
     elif command == 'updateuser':
         if USERNAME in rest[0]:
             if bot_mode == BOT_MODE.CHALLENGE_OWNER:
-                print("I WANT TO CHALLENGE")
                 await sender.challenge_user(OWNER, FORMATS[0])
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.ACCEPT_CHALLENGE:
-                print("I WANT TO ACCEPT")
                 await sender.accept_challenge(OWNER)
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.SEARCH:
@@ -53,79 +56,94 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
 
 
 async def handle_showdown_battle_messages(message: str):
+    """This function handles messages about a battle"""
     # Split the message into parts based on newline characters
     message_parts = message.split('\n')
 
     sender = Sender()
     battle_id = message_parts[0].split('|')[0].split('>')[1]
-    battle = check_battle(BATTLES, battle_id)
+    battle = get_battle_from_battles(BATTLES, battle_id)  # At the start of each iteration, get ref to the given battle
 
     for message_part in message_parts:
         splitted_part = message_part.split('|')
 
-        if len(splitted_part) < 2:
-            continue  # Go to the next iteration
+        try:
+            if len(splitted_part) < 2:
+                continue  # Go to the next iteration
 
-        _, command, *rest = splitted_part
+            _, command, *rest = splitted_part
+            print("Inner command:", command)
 
-        if command == "init":
-            # Create an object to the battle and append it to BATTLES list
-            battle_id = message_parts[0].split("|")[0].split(">")[1]
-            battle = Battle(battle_id)
-            BATTLES.append(battle)
+            if command == "init":
+                # Create an object to the battle and append it to BATTLES list
+                battle_id = message_parts[0].split("|")[0].split(">")[1]
+                battle = RandomBot(battle_id, sender)
+                BATTLES.append(battle)
 
-            # Alert that the bot in the battle and start the timer
-            await sender.send_message(battle.battle_id, "Hey! Battle started!")
-            await sender.send_message(battle.battle_id, "/timer on")
+                # Alert that the bot in the battle and start the timer
+                await sender.send_message(battle.battle_id, "Hey! Battle started!")
+                await sender.send_message(battle.battle_id, "/timer on")
 
-        elif command == "player":
-            if rest[1] == USERNAME:
-                battle.player_id = rest[0]
-                # TODO: battle's turn
+            elif command == "player":
+                if rest[1] == USERNAME:
+                    battle.player_id = rest[0]
+                    battle.turn = int(rest[0].split('p')[1]) - 1
 
-        elif command == "request":
-            if rest[0] != '':
-                if len(rest[0]) == 1:
-                    print("###req:")
-                    print(rest[1].split('\n')[1])
-                    print("###req:")
-                    await battle.update_bot_team(rest[1].split('\n')[1])  # TODO: fill it
-                else:
-                    print("###req:")
-                    print(rest[0])
-                    print("###req:")
-                    await battle.update_bot_team(rest[0])
+            elif command == "request":
+                if rest[0] != '':
+                    if len(rest[0]) == 1:
+                        print("###req:1")
+                        print(rest[1].split('\n')[1])
+                        print("###req:")
+                        await battle.update_bot_team(rest[1].split('\n')[1])
+                    else:
+                        print("###req:2")
+                        print(rest[0])
+                        print("###req:")
+                        await battle.update_bot_team(rest[0])
 
-        elif command == "teampreview":
-            await battle.make_team_order()  # TODO: fill it
+            elif command == "teampreview":
+                print("started teampreview")
+                await battle.make_team_order()
+                print("end teampreview")
 
-        elif command == "turn":
-            await battle.make_action()
+            elif command == "turn":
+                print("started turn")
+                await battle.make_action(sender)
+                print("end turn")
 
-        elif command == "callback":
-            if rest[0] == "trapped":
-                # await battle.make_move(make_best_move(battle))
-                print("TRAPPED! force to make move")
-        elif command == "poke":
-            if battle.player_id not in rest[0]:
-                battle.update_enemy()  # TODO: fill it
+            elif command == "callback":
+                if rest[0] == "trapped":
+                    # await battle.make_move(make_best_move(battle))
+                    print("TRAPPED! force to make move")
+            elif command == "poke":
+                if battle.player_id not in rest[0]:
+                    print("started poke")
+                    # battle.update_enemy_team()
+                    # print("started poke")
 
-        elif command == "win":
-            if battle is None:
-                print("Battle is None")
-            await sender.send_message(battle.battle_id, "GG!")
-            await sender.leave(battle.battle_id)
-            BATTLES.remove(battle)
-            # win function
+            elif command == "win":
+                if battle is None:
+                    print("Battle is None")
+                await sender.send_message(battle.battle_id, "GG!")
+                await sender.leave(battle.battle_id)
+                BATTLES.remove(battle)
+                # win function
 
-        elif command == "error":
-            raise RuntimeError(*rest)
+            elif command == "error":
+                raise RuntimeError(*rest)
 
-        else:
-            handle_battle(battle, command, rest)
+            else:
+                handle_actions(battle, command, rest)
+
+        except Exception as exception:
+            await sender.send_message(battle_id, 'The bot has been crushed')
+            await sender.forfeit(battle_id)
+            time.sleep(2)
+            raise exception
 
 
-def handle_battle(battle: Battle, command, rest):
+def handle_actions(battle: Battle, command, rest):
     if command.startswith('-'):
         minor_actions(battle, command, rest)
     else:
@@ -133,14 +151,14 @@ def handle_battle(battle: Battle, command, rest):
 
 
 def minor_actions(battle, command, rest):
-    print("minor")
+    pass
 
 
 def major_actions(battle, command, rest):
-    print("major")
-
     if command == "switch":
-        print("switch")
+        if battle.player_id not in rest[0]:
+            # update enemy
+            pass
 
     elif command == "move":
         pass

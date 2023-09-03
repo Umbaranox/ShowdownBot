@@ -25,8 +25,8 @@ class TestPokemonCreation(unittest.TestCase):
                         "active": true
                     },
                     {
-                        "ident": "p2: Baxcalibur",
-                        "details": "Baxcalibur, L75, F",
+                        "ident": "p2: Copperajah",
+                        "details": "Copperajah, L75, F",
                         "condition": "296/296",
                         "stats": {
                             "atk": 261,
@@ -62,6 +62,9 @@ class TestPokemonCreation(unittest.TestCase):
         self.assertEqual(pokemon_objects[0].item, "lightclay")
         self.assertEqual(pokemon_objects[0].terastall_type, "Water")
         self.assertEqual(pokemon_objects[0].types, ['rock', 'fairy'])
+
+        # Check types on pokemon with one type (Copperajah):
+        self.assertEqual(pokemon_objects[1].types, ['steel'])
 
     def test_enemy_pokemon_creation_abs_fields(self):
         enemy_pokemon = EnemyPokemon("Carbink", "90", "236/236")

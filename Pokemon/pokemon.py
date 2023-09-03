@@ -11,11 +11,17 @@ class Pokemon(ABC):
         self.url = "https://pokeapi.co/api/v2/pokemon/" + name.lower()  # For API data
         self.types = self.set_types()
         self.level = level
-        self.max_health = condition.split('/')[1]
-        self.curr_health = condition.split('/')[0]
+        if condition.contains('/'):
+            self.max_health = condition.split('/')[1]
+            self.curr_health = condition.split('/')[0]
+        else:  # Pokemon has fainted
+            self.max_health = 0
+            self.curr_health = 0
 
     def get_field_from_api(self, singular: str, plural: str):
-        response = requests.get(self.url).json()[plural]
+        # print("URL: ", self.url)
+        # print("JSN: ", requests.get(self.url).json())
+        response = requests.get(self.url).json()[plural]  # A PROBLEM!
         wished_list = [field_info[singular]["name"] for field_info in response]
         return wished_list
 

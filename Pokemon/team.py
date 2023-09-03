@@ -1,4 +1,4 @@
-from pokemon import Pokemon
+from Pokemon.pokemon import Pokemon
 
 TEAM_SIZE = 6
 
