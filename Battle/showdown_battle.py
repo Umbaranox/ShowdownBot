@@ -41,12 +41,11 @@ class Battle(ABC):
             print("Error in update team")
 
         if 'forceSwitch' in json_data.keys():
-            await self.make_switch()
+            await self.make_action(self.sender, Battle.ACTION.SWITCH)
 
         elif 'active' in json_data.keys():
             self.curr_pokemon = json_data['active']
 
-        print("FINISHED UPDATE_BOT_TEAM")
 
     async def update_enemy_team(self, pokemon_name: str, level: str, condition: str):
         """
@@ -83,12 +82,12 @@ class Battle(ABC):
         await self.sender.send(self.battle_id, f'/team {order}', str(self.turn))
 
     class ACTION(Enum):
+        NONE = "none"
         MOVE = "move"
         SWITCH = "switch"
 
     @abstractmethod
-    async def make_action(self, sender):
-        print("I NEED TO MAKE ACTION")
+    async def make_action(self, sender, forced_action=ACTION.NONE):
         pass
 
     async def make_move(self, value: int):
@@ -97,4 +96,4 @@ class Battle(ABC):
 
     async def make_switch(self, value: int):
         # TODO: handle error
-        await self.sender.send_switch(self.battle_id, value, self.turn)
+        await self.sender.send_switch(self.battle_id, value)

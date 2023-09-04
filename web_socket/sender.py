@@ -39,9 +39,9 @@ class Sender:
         message = f'/choose move {move}'
         await self.send_message(battle_tag, message)
 
-    async def send_switch(self, battle_tag: str, pokemon: int, turn: int):
+    async def send_switch(self, battle_tag: str, pokemon: int):
         message = f'/choose switch {pokemon}'
-        await self.send_message(battle_tag, message, str(turn))
+        await self.send_message(battle_tag, message)
 
     async def leave(self, battle_tag: str):
         await self.send_message('', f'/leave {battle_tag}')

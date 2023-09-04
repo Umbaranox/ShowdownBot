@@ -11,7 +11,7 @@ class Pokemon(ABC):
         self.url = "https://pokeapi.co/api/v2/pokemon/" + name.lower()  # For API data
         self.types = self.set_types()
         self.level = level
-        if condition.contains('/'):
+        if '/' in condition:
             self.max_health = condition.split('/')[1]
             self.curr_health = condition.split('/')[0]
         else:  # Pokemon has fainted
