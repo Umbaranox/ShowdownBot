@@ -109,7 +109,11 @@ async def handle_showdown_battle_messages(message: str):
 
             elif command == "turn":
                 print("started turn")
-                await battle.make_action(sender)
+                if battle.get_lives_count_of_bot_pokemon() == 1:
+                    # When having 1 left it can't be switched
+                    await battle.make_action(sender, Battle.ACTION.MOVE)
+                else:
+                    await battle.make_action(sender)
                 print("end turn")
 
             elif command == "callback":

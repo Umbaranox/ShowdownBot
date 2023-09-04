@@ -24,6 +24,9 @@ class Battle(ABC):
     def get_enemy_team(self):
         return self.enemy_team
 
+    def get_lives_count_of_bot_pokemon(self) -> int:
+        return sum(1 for pokemon in self.bot_team if not pokemon.is_alive())
+
     # getters...
 
     async def update_bot_team(self, request: str):
@@ -46,6 +49,10 @@ class Battle(ABC):
         elif 'active' in json_data.keys():
             self.curr_pokemon = json_data['active']
 
+        print("FINISHED UPDATE_BOT_TEAM1")
+        for pokemon in self.bot_team:
+            print(pokemon)
+        print("FINISHED UPDATE_BOT_TEAM2")
 
     async def update_enemy_team(self, pokemon_name: str, level: str, condition: str):
         """
@@ -94,6 +101,23 @@ class Battle(ABC):
         # TODO: handle error
         await self.sender.send_move(self.battle_id, value)
 
+    def move_validity(self, value: int) -> bool:
+        # TODO: fill it
+        return True
+
     async def make_switch(self, value: int):
         # TODO: handle error
         await self.sender.send_switch(self.battle_id, value)
+
+    def switch_validity(self, value: int) -> bool:
+        chosen_pokemon = self.bot_team[value - 1]
+
+        # Can't switch to a fainted pokemon
+        if chosen_pokemon.curr_health == 0:
+            return False
+
+        # Can't switch to the active pokemon
+        if chosen_pokemon.active:
+            return False
+
+        return True

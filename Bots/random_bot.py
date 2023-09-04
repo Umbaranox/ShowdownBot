@@ -29,6 +29,10 @@ class RandomBot(Battle):
         else:
             print("CHOSE: SWITCH")
             # switch
-            random_number = random.randint(1, 6)
+            while True:
+                random_number = random.randint(1, 6)
+                if self.switch_validity(random_number):
+                    # Exit the loop when a valid pick is found
+                    break
             await sender.send_message(self.battle_id, "I picked a switch")
             await super().make_switch(random_number)
