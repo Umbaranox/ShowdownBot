@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-
-from web_socket.sender import Sender
 from Pokemon.team import Team
 import json
 from Pokemon.pokemon import create_pokemon_objects_from_json, EnemyPokemon
+from Pokemon.move import create_active_moves_list
 
 
 class Battle(ABC):
@@ -15,6 +14,7 @@ class Battle(ABC):
         self.bot_team = Team()
         self.enemy_team = Team()
         self.curr_pokemon = None
+        self.active_moves = None
         # Data:
         self.turn = 0
 
@@ -31,17 +31,21 @@ class Battle(ABC):
 
     async def update_bot_team(self, request: str):
         """
-        Parse and translate json send by server. Reload bot team. Called each turn.
+        Parse and translate json send by server. Reload bot team and the current pokemon's moves. Called each turn.
         :param request: json sent by server.
         """
-        json_data = json.loads(request)
-        self.turn += 1  # 2?
 
         try:
             updated_team = create_pokemon_objects_from_json(request)
             self.bot_team = updated_team
+
+            active_moves = create_active_moves_list(request)
+            self.active_moves = active_moves
         except RuntimeError:
             print("Error in update team")
+
+        json_data = json.loads(request)
+        self.turn += 1  # 2?
 
         if 'forceSwitch' in json_data.keys():
             await self.make_action(self.sender, Battle.ACTION.SWITCH)
@@ -102,8 +106,8 @@ class Battle(ABC):
         await self.sender.send_move(self.battle_id, value)
 
     def move_validity(self, value: int) -> bool:
-        # TODO: fill it
-        return True
+        # Can't make a move with no pp or which is disabled
+        return self.active_moves[value - 1].is_possible()
 
     async def make_switch(self, value: int):
         # TODO: handle error

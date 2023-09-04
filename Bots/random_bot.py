@@ -23,7 +23,11 @@ class RandomBot(Battle):
         if forced_action == Battle.ACTION.MOVE:
             print("CHOSE: MOVE")
         # move
-            random_number = random.randint(1, 4)
+            while True:
+                random_number = random.randint(1, 4)
+                if self.move_validity(random_number):
+                    # Exit the loop when a valid pick is found
+                    break
             await sender.send_message(self.battle_id, "I picked a move")
             await super().make_move(random_number)
         else:
