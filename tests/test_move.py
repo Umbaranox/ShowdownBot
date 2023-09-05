@@ -9,6 +9,14 @@ class TestMove(unittest.TestCase):
         self.assertEqual(move.name, "Shadow Sneak")
         self.assertEqual(move.pp, "48")
         self.assertEqual(move.disabled, False)
+        self.assertEqual(type(move.disabled), bool)
+
+        move = Move("Armor Cannon", "8", "true")
+
+        self.assertEqual(move.name, "Armor Cannon")
+        self.assertEqual(move.pp, "8")
+        print("dis?", move.disabled)
+        self.assertEqual(move.disabled, True)
 
     def test_move_creation_data_field(self):
         move = Move("Shadow Sneak", "48", "false")
@@ -33,6 +41,19 @@ class TestMove(unittest.TestCase):
         self.assertEqual(move_list[1].name, "Glare")
         self.assertEqual(move_list[2].name, "Earthquake")
         self.assertEqual(move_list[3].name, "Stone Edge")
+
+    def test_is_possible(self):
+        move1 = Move("Shadow Sneak", "48", "false")
+        move2 = Move("Armor Cannon", "8", "true")
+        move3 = Move("Shadow Sneak", "0", "false")
+        move4 = Move("Armor Cannon", "0", "true")
+
+        self.assertEqual(type(move1.is_possible()), bool)
+
+        self.assertEqual(move1.is_possible(), True)
+        self.assertEqual(move2.is_possible(), False)
+        self.assertEqual(move3.is_possible(), False)
+        self.assertEqual(move4.is_possible(), False)
 
 
 if __name__ == '__main__':

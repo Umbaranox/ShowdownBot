@@ -1,14 +1,10 @@
 import time
 from constant_variable import BATTLES, USERNAME, OWNER, BOT_MODE, FORMATS
 from sender import Sender
-from Battle.showdown_battle import Battle
-from Bots.random_bot import RandomBot
+from BattleBots.battle_bot import BattleBot
+from BattleBots.random_bot import RandomBot
 import logger
 import constant_variable
-
-
-def get_battle_from_battles(battle_list: list[Battle], battle_id: str):
-    return next((battle for battle in battle_list if battle.battle_id == battle_id), None)
 
 
 async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
@@ -81,7 +77,7 @@ async def handle_showdown_battle_messages(message: str):
                 BATTLES.append(battle)
 
                 # Alert that the bot in the battle and start the timer
-                await sender.send_message(battle.battle_id, "Hey! Battle started!")
+                await sender.send_message(battle.battle_id, "Hey! BattleBot started!")
                 await sender.send_message(battle.battle_id, "/timer on")
 
             elif command == "player":
@@ -111,7 +107,9 @@ async def handle_showdown_battle_messages(message: str):
                 print("started turn")
                 if battle.get_lives_count_of_bot_pokemon() == 1:
                     # When having 1 left it can't be switched
-                    await battle.make_action(sender, Battle.ACTION.MOVE)
+                    await battle.make_action(sender, BattleBot.ACTION.MOVE)
+                elif '"maybeTrapped":true' in rest:
+                    await battle.make_action(sender, BattleBot.ACTION.MOVE)
                 else:
                     await battle.make_action(sender)
                 print("end turn")
@@ -122,13 +120,13 @@ async def handle_showdown_battle_messages(message: str):
                     print("TRAPPED! force to make move")
             elif command == "poke":
                 if battle.player_id not in rest[0]:
-                    print("started poke")
-                    # battle.update_enemy_team()
+                    print("Time to update enemy!")
+                    await battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
                     # print("started poke")
 
             elif command == "win":
                 if battle is None:
-                    print("Battle is None")
+                    print("BattleBot is None")
                 await sender.send_message(battle.battle_id, "GG!")
                 await sender.leave(battle.battle_id)
                 BATTLES.remove(battle)
@@ -147,7 +145,7 @@ async def handle_showdown_battle_messages(message: str):
             raise exception
 
 
-def handle_actions(battle: Battle, command, rest):
+def handle_actions(battle: BattleBot, command, rest):
     if command.startswith('-'):
         minor_actions(battle, command, rest)
     else:
@@ -161,6 +159,7 @@ def minor_actions(battle, command, rest):
 def major_actions(battle, command, rest):
     if command == "switch":
         if battle.player_id not in rest[0]:
+            battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
             # update enemy
             pass
 
@@ -169,3 +168,16 @@ def major_actions(battle, command, rest):
 
     else:
         pass
+
+
+# ----------- Supportive functions ----------- #
+
+def extract_argument_for_update_enemy_method(rest):
+    name = rest[1].split(',')[0]
+    level = rest[1].split(',')[1][2:]
+    condition = rest[2]
+    return name, level, condition
+
+
+def get_battle_from_battles(battle_list: list[BattleBot], battle_id: str):
+    return next((battle for battle in battle_list if battle.battle_id == battle_id), None)

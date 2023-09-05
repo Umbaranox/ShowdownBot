@@ -99,6 +99,13 @@ class TestPokemonCreation(unittest.TestCase):
                          'speed': 50}
         self.assertEqual(expected_dict, enemy_pokemon.stats)
 
+    def test_pokemon_with_challenged_names(self):
+        pokemon = EnemyPokemon("roaring moon", "90", "100/100")
+        self.assertEqual(pokemon.types, ['dragon', 'dark'])
+
+        pokemon = EnemyPokemon("roaring moon", "90", "100/100")
+        self.assertEqual(pokemon.types, ['dragon', 'dark'])
+
 
 if __name__ == '__main__':
     unittest.main()
