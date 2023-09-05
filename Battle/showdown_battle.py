@@ -13,7 +13,8 @@ class Battle(ABC):
         self.sender = sender
         self.bot_team = Team()
         self.enemy_team = Team()
-        self.curr_pokemon = None
+        self.curr_pokemon_data = None
+        self.curr_pokemon_ref = None
         self.active_moves = None
         # Data:
         self.turn = 0
@@ -39,8 +40,6 @@ class Battle(ABC):
             updated_team = create_pokemon_objects_from_json(request)
             self.bot_team = updated_team
 
-            active_moves = create_active_moves_list(request)
-            self.active_moves = active_moves
         except RuntimeError:
             print("Error in update team")
 
@@ -51,12 +50,19 @@ class Battle(ABC):
             await self.make_action(self.sender, Battle.ACTION.SWITCH)
 
         elif 'active' in json_data.keys():
-            self.curr_pokemon = json_data['active']
+            self.curr_pokemon_data = json_data['active']
 
-        print("FINISHED UPDATE_BOT_TEAM1")
+            try:
+                active_moves = create_active_moves_list(request)
+                self.active_moves = active_moves
+            except RuntimeError:
+                print("Error in update active moves")
+
         for pokemon in self.bot_team:
-            print(pokemon)
-        print("FINISHED UPDATE_BOT_TEAM2")
+            if pokemon.active:
+                self.curr_pokemon_ref = pokemon
+
+
 
     async def update_enemy_team(self, pokemon_name: str, level: str, condition: str):
         """
@@ -106,6 +112,7 @@ class Battle(ABC):
         await self.sender.send_move(self.battle_id, value)
 
     def move_validity(self, value: int) -> bool:
+        print("Check move validity:", self.active_moves[value - 1].is_possible())
         # Can't make a move with no pp or which is disabled
         return self.active_moves[value - 1].is_possible()
 
@@ -118,10 +125,12 @@ class Battle(ABC):
 
         # Can't switch to a fainted pokemon
         if chosen_pokemon.curr_health == 0:
+            print("Rechoose switch")
             return False
 
         # Can't switch to the active pokemon
         if chosen_pokemon.active:
+            print("Rechoose switch")
             return False
 
         return True

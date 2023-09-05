@@ -8,7 +8,7 @@ MAX_MOVES_COUNT = 4
 class Pokemon(ABC):
     def __init__(self, name, level, condition):
         self.name = name
-        self.url = "https://pokeapi.co/api/v2/pokemon/" + name.lower()  # For API data
+        self.url = "https://pokeapi.co/api/v2/pokemon/" + name.lower().replace(" ", "-")  # For API data
         self.types = self.set_types()
         self.level = level
         if '/' in condition:
@@ -19,11 +19,15 @@ class Pokemon(ABC):
             self.curr_health = 0
 
     def get_field_from_api(self, singular: str, plural: str):
-        # print("URL: ", self.url)
+        print("URL: ", self.url)
         # print("JSN: ", requests.get(self.url).json())
-        response = requests.get(self.url).json()[plural]  # A PROBLEM!
-        wished_list = [field_info[singular]["name"] for field_info in response]
-        return wished_list
+        try:
+            response = requests.get(self.url).json()
+            field_info_json = response.get(plural, [])
+            wished_list = [field_info[singular]["name"] for field_info in field_info_json]
+            return wished_list
+        except ValueError:
+            print("There is a problem with the name", self.name)
 
     def set_types(self) -> list[str]:
         return self.get_field_from_api("type", "types")
@@ -65,15 +69,16 @@ class BotPokemon(Pokemon):
 
 
 def create_pokemon_objects_from_json(json_data) -> list[Pokemon]:
-    """This function gets a json and create pokemon(s)"""
+    """This function gets a json and create pokemons"""
+    # TODO: Right now, this function create 6 pokemons every turn. It'll be more eff to create only the changed objects.
     pokemon_objects = []
 
     # Load JSON data
-    data = json.loads(json_data)
+    data = json.loads(json_data.replace("|request|", ""))
 
     if 'side' in data and 'pokemon' in data['side']:
         for pokemon_info in data['side']['pokemon']:
-            name = pokemon_info.get('details', '').split(',')[0]
+            name = pokemon_info.get('ident', '')[4:]
             level = pokemon_info.get('details', '').split(',')[1][-2:]
             condition = pokemon_info.get('condition', '')
             active = pokemon_info.get('active', False)
