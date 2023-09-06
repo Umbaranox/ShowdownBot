@@ -2,13 +2,8 @@ import json
 import configparser
 from pathlib import Path
 import requests
-from sender import Sender
-
-config = configparser.ConfigParser()
-config.read(Path('..').parent.absolute() / 'config.ini')
-USERNAME = config['bot']['username']
-PASSWORD = config['bot']['password']
-OWNER = config['bot']['owner']
+from web_socket.sender import Sender
+from web_socket.constant_variable import USERNAME, PASSWORD
 
 
 async def log_in(challid: str, chall: str):

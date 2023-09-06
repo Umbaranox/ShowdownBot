@@ -23,5 +23,13 @@ FORMATS = [
 ]
 
 BATTLES = []  # A list of all current fights
-MAX_BATTLES_COUNT = 1 
+MAX_BATTLES_COUNT = 1
 CUR_BATTLES_COUNT = 0
+
+URL_API = 'https://pokeapi.co/api/v2/'
+
+
+class ACTION(Enum):
+    NONE = "none"
+    MOVE = "move"
+    SWITCH = "switch"

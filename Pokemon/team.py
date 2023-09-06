@@ -18,9 +18,9 @@ class Team:
             raise RuntimeError(f"Failed to add {pokemon.name}. Team can contain up to 6 Pokemons")
         self.team.append(pokemon)
 
-    def add(self, pokemons: list[Pokemon]):
-        for pokemon in pokemons:
-            self.add(pokemon)
+    # def add(self, pokemons: list[Pokemon]):
+    #     for pokemon in pokemons:
+    #         self.add(pokemon)
 
     def get_current_pokemon(self):
         if not self.isPlaying:

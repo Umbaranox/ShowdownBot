@@ -1,9 +1,9 @@
 import json
 from abc import ABC, abstractmethod
-from enum import Enum
 from Pokemon.team import Team
 from Pokemon.pokemon import create_pokemon_objects_from_json, EnemyPokemon
 from Pokemon.move import create_active_moves_list
+from web_socket.constant_variable import ACTION
 
 
 class BattleBot(ABC):
@@ -53,6 +53,12 @@ class BattleBot(ABC):
         """
         return sum(1 for pokemon in self.bot_team if not pokemon.is_alive())
 
+    def find_enemy_pokemon_by_name(self, pokemon_name):
+        found_pokemon = next((pokemon for pokemon in self.enemy_team.team if pokemon.name == pokemon_name), None)
+        if found_pokemon is None:
+            raise RuntimeError("Error in looking for an enemy pokemon")
+        return found_pokemon
+
     # getters...
 
     async def update_bot_team(self, request: str) -> None:
@@ -60,7 +66,7 @@ class BattleBot(ABC):
         Updates the bot team's status and actions based on the provided JSON request.
 
         This function processes a JSON request containing information about the bot's team and battle state. It creates updated
-        Pokemon objects and sets them as the new bot team. It also checks if a switch is forced or if there are active moves
+        Pokemon objects and sets them as the new bot team. It also checks if a switch is forced or if there are active known_moves
         for the current Pokemon. Additionally, it updates the current turn and the reference to the currently active Pokemon.
 
         Args:
@@ -86,18 +92,22 @@ class BattleBot(ABC):
 
         # Checks if a switch is forced
         if 'forceSwitch' in json_data.keys():
-            await self.make_action(self.sender, BattleBot.ACTION.SWITCH)
+            await self.make_action(self.sender, ACTION.SWITCH)
 
         # Check if the current pokemon is the active
         elif 'active' in json_data.keys():
             self.curr_pokemon_data = json_data['active']
 
-            # Gets its optional moves
+            # Gets its optional known_moves
             try:
                 active_moves = create_active_moves_list(request)
                 self.active_moves = active_moves
+                # print("Active known_moves:")
+                # for move in self.active_moves:
+                #     print(move.name + ": ", str(move.power), " / ", str(move.accu))
+                # print("/Active known_moves:")
             except RuntimeError:
-                print("Error in updating active moves")
+                print("Error in updating active known_moves")
 
         # Update the reference to the currently active Pokemon
         for pokemon in self.bot_team:
@@ -144,11 +154,6 @@ class BattleBot(ABC):
         order = ''.join([str(x[0]) for x in self.bot_team.team])
         await self.sender.send(self.battle_id, f'/team {order}', str(self.turn))
 
-    class ACTION(Enum):
-        NONE = "none"
-        MOVE = "move"
-        SWITCH = "switch"
-
     @abstractmethod
     async def make_action(self, sender, forced_action=ACTION.NONE):
         """
@@ -171,7 +176,7 @@ class BattleBot(ABC):
         await self.sender.send_move(self.battle_id, value)
 
     def move_validity(self, value: int) -> bool:
-        print("Check move validity:", self.active_moves[value - 1].is_possible())
+        # print("Check move validity:", self.active_moves[value - 1].is_possible())
         # Can't make a move with no pp or which is disabled
         return self.active_moves[value - 1].is_possible()
 

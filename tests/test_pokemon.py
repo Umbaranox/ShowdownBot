@@ -18,7 +18,7 @@ class TestPokemonCreation(unittest.TestCase):
                             "spd": 321,
                             "spe": 141
                         },
-                        "moves": ["moonblast", "reflect", "bodypress", "lightscreen"],
+                        "known_moves": ["moonblast", "reflect", "bodypress", "lightscreen"],
                         "ability": "sturdy",
                         "item": "lightclay",
                         "teraType": "Water",
@@ -35,7 +35,7 @@ class TestPokemonCreation(unittest.TestCase):
                             "spd": 173,
                             "spe": 174
                         },
-                        "moves": ["dragondance", "glaiverush", "iciclecrash", "earthquake"],
+                        "known_moves": ["dragondance", "glaiverush", "iciclecrash", "earthquake"],
                         "ability": "thermalexchange",
                         "item": "heavydutyboots",
                         "teraType": "Ground",
@@ -77,7 +77,7 @@ class TestPokemonCreation(unittest.TestCase):
     def test_enemy_pokemon_creation_moves_abilities(self):
         enemy_pokemon = EnemyPokemon("Carbink", "90", "236/236")
 
-        self.assertEqual(enemy_pokemon.moves,
+        self.assertEqual(enemy_pokemon.known_moves,
                          ['tackle', 'body-slam', 'take-down', 'hyper-beam', 'rock-throw', 'toxic', 'psychic',
                           'double-team', 'harden', 'light-screen', 'reflect', 'flash', 'explosion', 'rest',
                           'rock-slide', 'sharpen', 'substitute', 'snore', 'flail', 'protect', 'spikes', 'sandstorm',

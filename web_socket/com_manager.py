@@ -1,10 +1,10 @@
 import time
-from constant_variable import BATTLES, USERNAME, OWNER, BOT_MODE, FORMATS
-from sender import Sender
+from web_socket.constant_variable import BATTLES, USERNAME, OWNER, BOT_MODE, FORMATS, ACTION
+from web_socket.sender import Sender
 from BattleBots.battle_bot import BattleBot
 from BattleBots.random_bot import RandomBot
-import logger
-import constant_variable
+from web_socket.logger import log_in
+from web_socket import constant_variable
 
 
 async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
@@ -20,7 +20,7 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
     if command == 'challstr':
         # If we got the challstr, we now can log in.
         print("Lets connect")
-        await logger.log_in(rest[0], rest[1])
+        await log_in(rest[0], rest[1])
 
     elif command == 'updateuser':
         if USERNAME in rest[0]:
@@ -107,9 +107,9 @@ async def handle_showdown_battle_messages(message: str):
                 print("started turn")
                 if battle.get_lives_count_of_bot_pokemon() == 1:
                     # When having 1 left it can't be switched
-                    await battle.make_action(sender, BattleBot.ACTION.MOVE)
+                    await battle.make_action(sender, ACTION.MOVE)
                 elif '"maybeTrapped":true' in rest:
-                    await battle.make_action(sender, BattleBot.ACTION.MOVE)
+                    await battle.make_action(sender, ACTION.MOVE)
                 else:
                     await battle.make_action(sender)
                 print("end turn")
@@ -136,7 +136,7 @@ async def handle_showdown_battle_messages(message: str):
                 raise RuntimeError(*rest)
 
             else:
-                handle_actions(battle, command, rest)
+                await handle_actions(battle, command, rest)
 
         except Exception as exception:
             await sender.send_message(battle_id, 'The bot has been crushed')
@@ -145,25 +145,36 @@ async def handle_showdown_battle_messages(message: str):
             raise exception
 
 
-def handle_actions(battle: BattleBot, command, rest):
+async def handle_actions(battle: BattleBot, command, rest):
     if command.startswith('-'):
-        minor_actions(battle, command, rest)
+        await minor_actions(battle, command, rest)
     else:
-        major_actions(battle, command, rest)
+        await major_actions(battle, command, rest)
 
 
-def minor_actions(battle, command, rest):
+async def minor_actions(battle, command, rest):
     pass
 
 
-def major_actions(battle, command, rest):
+async def major_actions(battle, command, rest):
     if command == "switch":
+        print("--- used switch")
         if battle.player_id not in rest[0]:
-            battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
+            print("--- got into if")
+            await battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
             # update enemy
             pass
 
     elif command == "move":
+        if battle.player_id in rest[0]:
+            # print("Friendly", rest[0][5:], "used", rest[1], "against", rest[2][5:])
+            pass
+        else:
+            # Get the current enemy_pokemon reference and updates its known moves.
+            enemy_pokemon_name = rest[0][5:]
+            enemy_pokemon = battle.find_enemy_pokemon_by_name(enemy_pokemon_name)
+            move_name = rest[1]
+            enemy_pokemon.update_enemy_moves(move_name)
         pass
 
     else:

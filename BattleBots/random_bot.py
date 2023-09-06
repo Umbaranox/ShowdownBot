@@ -1,5 +1,6 @@
-from BattleBots.battle_bot import BattleBot
 import random
+from BattleBots.battle_bot import BattleBot
+from web_socket.constant_variable import ACTION
 
 
 class RandomBot(BattleBot):
@@ -7,28 +8,28 @@ class RandomBot(BattleBot):
     A test class for BattleBot that makes random battle actions.
 
     This class extends the functionality of the BattleBot class to make random battle actions, such as selecting
-    random moves or switching Pokemon.
+    random known_moves or switching Pokemon.
     """
 
     def __init__(self, battle_id: str, sender):
         super().__init__(battle_id, sender)
 
-    async def make_action(self, sender, forced_action=BattleBot.ACTION.NONE):
+    async def make_action(self, sender, forced_action=ACTION.NONE):
         """
         Perform a battle action in response to a game event.
 
         This method makes random battle actions based on a forced action or a random choice between move and switch.
         """
-        if forced_action is BattleBot.ACTION.NONE:
+        if forced_action is ACTION.NONE:
             # Generate a random number 1 (move) or 2 (switch)
             random_number = random.randint(1, 2)
 
             if random_number == 1:
-                forced_action = BattleBot.ACTION.MOVE
+                forced_action = ACTION.MOVE
             else:
-                forced_action = BattleBot.ACTION.SWITCH
+                forced_action = ACTION.SWITCH
 
-        if forced_action == BattleBot.ACTION.MOVE:
+        if forced_action == ACTION.MOVE:
             # move
             while True:
                 random_number = random.randint(1, 4)

@@ -7,13 +7,7 @@ class Move:
         self.name = name
         self.pp = pp
         self.disabled = is_disabled
-        # print("is_dis:", is_disabled)
-        # if is_disabled.lower() == "false":
-        #     self.disabled = False
-        # else:
-        #     self.disabled = True
-        # print("is_dis_score:", self.disabled)
-        self.url = "https://pokeapi.co/api/v2/move/" + self.name.lower().replace(" ", "-")  # Shadow Sneak -> shadow-sneak
+        self.url = "https://pokeapi.co/api/v2/" + "move/" + self.name.lower().replace(" ", "-")  # Shadow Sneak -> shadow-sneak
         # Data:
         self.type = None
         self.power = None
@@ -53,15 +47,11 @@ class Move:
 def create_active_moves_list(json_data) -> list[Move]:
     data = json.loads(json_data.replace("|request|", ""))
 
-    print("data:", data)
-
     # Extract the "active" section from the JSON data
     active_section = data.get("active", [])
     active_moves_list = []
 
-    print("active_data:", active_section)
-
-    # Iterate through the moves in the "active" section
+    # Iterate through the known_moves in the "active" section
     for move_data in active_section[0].get("moves", [])[:4]:
         move_name = move_data.get("move", '')
         move_pp = move_data.get("pp", 0)
@@ -71,4 +61,14 @@ def create_active_moves_list(json_data) -> list[Move]:
         move = Move(move_name, move_pp, move_disabled)
         active_moves_list.append(move)
 
+    if len(active_moves_list) == 0:
+        raise RuntimeError("Couldn't upload the moves of the active pokemon")
+
     return active_moves_list
+
+
+def create_move(move_name: str) -> Move:
+    """Uses for enemy's known_moves"""
+    move = Move(move_name, "30", False)  # 30 - a temp number till I find if extracting it is possible
+    # move.pp -= 1
+    return move

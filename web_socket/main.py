@@ -1,9 +1,9 @@
 import asyncio
 from datetime import datetime
-from sender import Sender
+from web_socket.sender import Sender
 import websockets
-from com_manager import handle_showdown_messages
-from constant_variable import BOT_MODE
+from web_socket.com_manager import handle_showdown_messages
+from web_socket.constant_variable import BOT_MODE
 
 
 async def main():

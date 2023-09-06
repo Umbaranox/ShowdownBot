@@ -1,14 +1,14 @@
 from abc import ABC
 import json
 import requests
-
-MAX_MOVES_COUNT = 4
+from Pokemon.move import create_move
+from web_socket.constant_variable import URL_API
 
 
 class Pokemon(ABC):
     def __init__(self, name, level, condition):
         self.name = name
-        self.url = "https://pokeapi.co/api/v2/pokemon/" + name.lower().replace(" ", "-")  # For API data
+        self.url = URL_API + "pokemon/" + name.lower().replace(" ", "-")
         self.types = self.set_types()
         self.level = level
         if '/' in condition:
@@ -83,7 +83,7 @@ def create_pokemon_objects_from_json(json_data) -> list[Pokemon]:
             condition = pokemon_info.get('condition', '')
             active = pokemon_info.get('active', False)
             stats = pokemon_info.get('stats', {})  # Extracted stats data
-            moves = pokemon_info.get('moves', [])  # Extracted moves data
+            moves = pokemon_info.get('known_moves', [])  # Extracted known_moves data
             ability = pokemon_info.get('ability', '')  # Extracted ability data
             item = pokemon_info.get('item', '')  # Extracted item data
             terastall_type = pokemon_info.get('teraType', '')  # Extracted terastall_type data
@@ -100,8 +100,9 @@ class EnemyPokemon(Pokemon):
         super().__init__(name, level, condition)
         self.active = False  # By default
         self.stats = self.set_stats()
-        self.moves = self.set_potential_moves()
         self.abilities = self.set_potential_abilities()
+        self.potential_moves = self.set_potential_moves()
+        self.known_moves = []
 
     def set_stats(self):
         response = requests.get(self.url).json()["stats"]
@@ -122,7 +123,16 @@ class EnemyPokemon(Pokemon):
         return stat_dict
 
     def set_potential_moves(self):
-        return super().get_field_from_api("move", "moves")
+        return super().get_field_from_api("move", "known_moves")
 
     def set_potential_abilities(self):
         return super().get_field_from_api("ability", "abilities")
+
+    def update_enemy_moves(self, move_name: str):
+        """Get the name of an attack used. If the enemy didn't use it yet, att it to the least"""
+        for move in self.known_moves:
+            if move.name == move_name:
+                move.pp = str(int(move.pp) - 1)
+                return
+
+        self.known_moves.append(create_move(move_name))

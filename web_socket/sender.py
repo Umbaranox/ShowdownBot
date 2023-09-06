@@ -7,21 +7,18 @@ class Sender:
             cls.instance = super(Sender, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self, websocket=None):
-        if not hasattr(self, 'websocket'):
-            self.websocket = websocket
-        if not self.websocket:
-            raise ValueError('Field "websocket" needs to be initialised at least one time.')
+    def __init__(self, web_socket=None):
+        if not hasattr(self, 'web_socket'):
+            self.web_socket = web_socket
+        if not self.web_socket:
+            raise ValueError('Field "web_socket" needs to be initialised at least one time.')
 
     async def send_message(self, room: str, *messages: str):
         """
-        Default websocket sender. Format message, log and send websocket.
-        :param room: Room name.
-        :param messages: List of messages to send.
         """
         string = f'{room}|{"|".join(messages)}'
         print(f'[{datetime.now().replace(microsecond=0).isoformat()}] >> {string}')
-        await self.websocket.send(string)
+        await self.web_socket.send(string)
 
     async def search_game_in_format(self, battle_format: str):
         message = f'/search {battle_format}'
