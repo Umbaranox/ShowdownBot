@@ -14,20 +14,27 @@ class RandomBot(BattleBot):
     def __init__(self, battle_id: str, sender):
         super().__init__(battle_id, sender)
 
+    @staticmethod
+    async def pick_random_action():
+        """
+        Generate a random battle action.
+
+        This function randomly selects between move and switch and returns the chosen action.
+        """
+        random_number = random.randint(1, 2)
+        if random_number == 1:
+            return ACTION.MOVE
+        else:
+            return ACTION.SWITCH
+
     async def make_action(self, sender, forced_action=ACTION.NONE):
         """
         Perform a battle action in response to a game event.
 
-        This method makes random battle actions based on a forced action or a random choice between move and switch.
+        This method makes battle actions based on a forced action or a random choice between move and switch.
         """
         if forced_action is ACTION.NONE:
-            # Generate a random number 1 (move) or 2 (switch)
-            random_number = random.randint(1, 2)
-
-            if random_number == 1:
-                forced_action = ACTION.MOVE
-            else:
-                forced_action = ACTION.SWITCH
+            forced_action = await self.pick_random_action()
 
         if forced_action == ACTION.MOVE:
             # move

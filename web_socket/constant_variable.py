@@ -1,13 +1,4 @@
-import configparser
 from enum import Enum
-from pathlib import Path
-
-# Explain, from config
-config = configparser.ConfigParser()
-config.read(Path('..').parent.absolute() / 'config.ini')
-USERNAME = config['bot']['username']
-PASSWORD = config['bot']['password']
-OWNER = config['bot']['owner']
 
 
 class BOT_MODE(Enum):
@@ -33,3 +24,7 @@ class ACTION(Enum):
     NONE = "none"
     MOVE = "move"
     SWITCH = "switch"
+
+    def __str__(self):
+        return self.name.lower()
+

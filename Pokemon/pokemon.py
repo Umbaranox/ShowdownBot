@@ -2,13 +2,12 @@ from abc import ABC
 import json
 import requests
 from Pokemon.move import create_move
-from web_socket.constant_variable import URL_API
 
 
 class Pokemon(ABC):
     def __init__(self, name, level, condition):
         self.name = name
-        self.url = URL_API + "pokemon/" + name.lower().replace(" ", "-")
+        self.url = "https://pokeapi.co/api/v2/" + "pokemon/" + name.lower().replace(" ", "-")
         self.types = self.set_types()
         self.level = level
         if '/' in condition:

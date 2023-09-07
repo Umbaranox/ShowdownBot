@@ -47,9 +47,6 @@ class BattleBot(ABC):
     def get_lives_count_of_bot_pokemon(self) -> int:
         """
         Get the count of bot's Pokemon that are not alive.
-
-        Returns:
-            int: The count of bot's Pokemon that are not alive.
         """
         return sum(1 for pokemon in self.bot_team if not pokemon.is_alive())
 
@@ -172,27 +169,53 @@ class BattleBot(ABC):
         pass
 
     async def make_move(self, value: int):
-        # TODO: handle error
+        """
+        Sends a move command to the server.
+
+        Args:
+            value (int): The index of the move to make.
+        """
         await self.sender.send_move(self.battle_id, value)
 
     def move_validity(self, value: int) -> bool:
+        """
+        Checks if a move is valid based on PP and disabled status.
+
+        Args:
+            value (int): The index of the move to check.
+
+        Returns:
+            bool: True if the move is valid, False otherwise.
+        """
         # print("Check move validity:", self.active_moves[value - 1].is_possible())
         # Can't make a move with no pp or which is disabled
         return self.active_moves[value - 1].is_possible()
 
     async def make_switch(self, value: int):
-        # TODO: handle error
+        """
+        Sends a switch command to the server.
+
+        Args:
+            value (int): The index of the Pokemon to switch to.
+        """
         await self.sender.send_switch(self.battle_id, value)
 
     def switch_validity(self, value: int) -> bool:
+        """
+        Checks if a switch is valid based on the chosen Pokemon's condition.
+
+        Args:
+            value (int): The index of the Pokemon to switch to.
+
+        Returns:
+            bool: True if the switch is valid, False otherwise.
+        """
         chosen_pokemon = self.bot_team[value - 1]
 
         # Can't switch to a fainted pokemon
         if chosen_pokemon.curr_health == 0:
             return False
-
         # Can't switch to the active pokemon
         if chosen_pokemon.active:
             return False
-
         return True

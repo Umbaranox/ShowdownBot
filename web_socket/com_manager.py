@@ -1,9 +1,10 @@
+"""This file includes numerous print statements to facilitate thorough project tracking and monitoring during development."""
 import time
-from web_socket.constant_variable import BATTLES, USERNAME, OWNER, BOT_MODE, FORMATS, ACTION
+from web_socket.constant_variable import BATTLES, BOT_MODE, FORMATS, ACTION
 from web_socket.sender import Sender
 from BattleBots.battle_bot import BattleBot
 from BattleBots.random_bot import RandomBot
-from web_socket.logger import log_in
+from web_socket.login import log_in, USERNAME, OWNER
 from web_socket import constant_variable
 
 
