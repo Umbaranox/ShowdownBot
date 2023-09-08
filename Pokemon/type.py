@@ -69,9 +69,19 @@ class TypeChart:
     """
     Class for handling type effectiveness in battles.
     """
-    def __init__(self):
-        # Initialize type weaknesses, resistances, and immunities
-        self.weakness = {
+
+    @staticmethod
+    def get_weaknesses(given_type: Type) -> list[Type]:
+        """
+        Get the weaknesses of a given type.
+
+        Args:
+            given_type (Type): The type to get weaknesses for.
+
+        Returns:
+            list[Type]: A list of types that are weaknesses for the given type.
+        """
+        weakness = {
             Type.FIRE: [Type.WATER, Type.ROCK, Type.GROUND],
             Type.WATER: [Type.ELECTRIC, Type.GRASS],
             Type.ELECTRIC: [Type.GROUND],
@@ -91,8 +101,20 @@ class TypeChart:
             Type.FAIRY: [Type.POISON, Type.STEEL],
             Type.NORMAL: [Type.FIGHTING]
         }
+        return weakness.get(given_type, [])
 
-        self.resistance = {
+    @staticmethod
+    def get_resistances(given_type: Type) -> list[Type]:
+        """
+        Get the resistances of a given type.
+
+        Args:
+            given_type (Type): The type to get resistances for.
+
+        Returns:
+            list[Type]: A list of types that are resistances for the given type.
+        """
+        resistance = {
             Type.FIRE: [Type.FIRE, Type.GRASS, Type.ICE, Type.BUG, Type.STEEL, Type.FAIRY],
             Type.WATER: [Type.WATER, Type.FIRE, Type.ICE, Type.STEEL],
             Type.ELECTRIC: [Type.ELECTRIC, Type.FLYING, Type.STEEL],
@@ -114,40 +136,10 @@ class TypeChart:
             Type.NORMAL: []
         }
 
-        self.immunity = {
-            Type.NORMAL: [Type.GHOST],
-            Type.GROUND: [Type.ELECTRIC],
-            Type.FLYING: [Type.GROUND],
-            Type.DARK: [Type.PSYCHIC],
-            Type.GHOST: [Type.NORMAL, Type.FIGHTING],
-            Type.FAIRY: [Type.DRAGON]
-        }
+        return resistance.get(given_type, [])
 
-    def get_weaknesses(self, given_type: Type) -> list[Type]:
-        """
-        Get the weaknesses of a given type.
-
-        Args:
-            given_type (Type): The type to get weaknesses for.
-
-        Returns:
-            list[Type]: A list of types that are weaknesses for the given type.
-        """
-        return self.weakness.get(given_type, [])
-
-    def get_resistances(self, given_type: Type) -> list[Type]:
-        """
-        Get the resistances of a given type.
-
-        Args:
-            given_type (Type): The type to get resistances for.
-
-        Returns:
-            list[Type]: A list of types that are resistances for the given type.
-        """
-        return self.resistance.get(given_type, [])
-
-    def get_immunities(self, given_type: Type) -> list[Type]:
+    @staticmethod
+    def get_immunities(given_type: Type) -> list[Type]:
         """
         Get the immunities of a given type.
 
@@ -157,9 +149,19 @@ class TypeChart:
         Returns:
             list[Type]: A list of types that are immunities for the given type.
         """
-        return self.immunity.get(given_type, [])
+        immunity = {
+            Type.NORMAL: [Type.GHOST],
+            Type.GROUND: [Type.ELECTRIC],
+            Type.FLYING: [Type.GROUND],
+            Type.DARK: [Type.PSYCHIC],
+            Type.GHOST: [Type.NORMAL, Type.FIGHTING],
+            Type.FAIRY: [Type.DRAGON]
+        }
 
-    def get_type_effectiveness(self, attacking_type: Type, defending_type: Type) -> float:
+        return immunity.get(given_type, [])
+
+    @staticmethod
+    def get_type_effectiveness(attacking_type: Type, defending_type: Type) -> float:
         """
         Get the effectiveness of an attacking type against a defending type.
 
@@ -173,11 +175,11 @@ class TypeChart:
         if defending_type == Type.NORMAL:
             return 1.0
 
-        if attacking_type in self.get_immunities(defending_type):
+        if attacking_type in TypeChart.get_immunities(defending_type):
             return 0.0
-        elif attacking_type in self.get_resistances(defending_type):
+        elif attacking_type in TypeChart.get_resistances(defending_type):
             return 0.5
-        elif attacking_type in self.get_weaknesses(defending_type):
+        elif attacking_type in TypeChart.get_weaknesses(defending_type):
             return 2.0
         else:
             return 1.0
