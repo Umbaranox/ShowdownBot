@@ -1,6 +1,6 @@
 import unittest
-from Pokemon.pokemon import Pokemon, EnemyPokemon, BotPokemon, create_pokemon_objects_from_json
-from Pokemon.team import Team
+from Engine.pokemon import Pokemon, EnemyPokemon, BotPokemon, create_pokemon_objects_from_json
+from Engine.team import Team
 
 
 class TestTeam(unittest.TestCase):

@@ -1,8 +1,8 @@
 import json
 from abc import ABC, abstractmethod
-from Pokemon.team import Team
-from Pokemon.pokemon import create_pokemon_objects_from_json, EnemyPokemon
-from Pokemon.move import create_active_moves_list
+from Engine.team import Team
+from Engine.pokemon import create_pokemon_objects_from_json, EnemyPokemon
+from Engine.move import create_active_moves_list
 from web_socket.constant_variable import ACTION
 
 

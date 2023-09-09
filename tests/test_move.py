@@ -1,5 +1,5 @@
 import unittest
-from Pokemon.move import Move, create_active_moves_list
+from Engine.move import Move, create_active_moves_list
 
 
 class TestMove(unittest.TestCase):

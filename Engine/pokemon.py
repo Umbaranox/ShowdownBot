@@ -1,7 +1,9 @@
 from abc import ABC
 import json
 import requests
-from Pokemon.move import create_move
+from Engine.move import create_move
+
+MAX_MOVES = 4
 
 
 class Pokemon(ABC):
@@ -67,7 +69,7 @@ class BotPokemon(Pokemon):
         return self.terastall_type
 
 
-def create_pokemon_objects_from_json(json_data) -> list[Pokemon]:
+def create_pokemon_objects_from_json(json_data) -> list[BotPokemon]:
     """This function gets a json and create pokemons"""
     # TODO: Right now, this function create 6 pokemons every turn. It'll be more eff to create only the changed objects.
     pokemon_objects = []
@@ -116,7 +118,7 @@ class EnemyPokemon(Pokemon):
             base_stat = stat_info["base_stat"]
 
             # Add the stat to the dictionary
-            stat_dict[stat_name] = base_stat
+            stat_dict[long_to_short_key_mapping[stat_name]] = base_stat
 
         # return the resulting dictionary
         return stat_dict
@@ -135,3 +137,14 @@ class EnemyPokemon(Pokemon):
                 return
 
         self.known_moves.append(create_move(move_name))
+
+
+# Define the mapping of long keys to short keys
+long_to_short_key_mapping = {
+    'hp': 'hp',
+    'attack': 'atk',
+    'defense': 'def',
+    'special-attack': 'spa',
+    'special-defense': 'spd',
+    'speed': 'spe'
+}

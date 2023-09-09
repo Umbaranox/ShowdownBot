@@ -1,34 +1,59 @@
 import json
+from enum import Enum
 import requests
 
 
+class MoveCategory(Enum):
+    PHYSICAL = "physical"
+    SPECIAL = "special"
+    STATUS = "status"
+
+
 class Move:
-    def __init__(self, name: str, pp: str, is_disabled: bool):
+    def __init__(self, name: str, pp: str, is_disabled: bool, move_type=None, power=None, accuracy=None, priority=None,
+                 category=None):
         self.name = name
         self.pp = pp
         self.disabled = is_disabled
-        self.url = "https://pokeapi.co/api/v2/" + "move/" + self.name.lower().replace(" ", "-")  # Shadow Sneak -> shadow-sneak
-        # Data:
-        self.type = None
-        self.power = None
-        self.accu = None
-        self.priority = None
-        self.fill_data_fields()
+        self.url = "https://pokeapi.co/api/v2/move/" + self.name.lower().replace(" ", "-")
+
+        if move_type is None and power is None and accuracy is None and priority is None and category is None:
+            self.fill_data_fields()
+        else:
+            self.type = move_type
+            self.power = power
+            self.accu = accuracy
+            self.priority = priority
+            self.move_category = category
 
     def fill_data_fields(self):
         response = requests.get(self.url).json()
         self.type = response.get("type", {}).get("name")
+
         power = response.get("power")
         if power is None:
             self.power = 0
         else:
             self.power = int(power)
+
         accu = response.get("accuracy")
         if accu is None:
             self.accu = 100.0
         else:
             self.accu = float(accu) / 100.0
+
         self.priority = int(response.get("priority"))
+        self.set_move_category(response.get("damage_class", {}).get("name"))
+
+    def set_move_category(self, category_name: str):  # TODO: add test
+        if category_name == "physical":
+            self.move_category = MoveCategory.PHYSICAL
+        elif category_name == "special":
+            self.move_category = MoveCategory.SPECIAL
+        elif category_name == "status":
+            self.move_category = MoveCategory.STATUS
+        else:
+            raise ValueError(f'The move {self.name} does not have a legal category')
 
     def is_move_disabled(self):
         return self.disabled

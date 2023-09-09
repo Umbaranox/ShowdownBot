@@ -1,5 +1,5 @@
 import unittest
-from Pokemon.type import Type, TypeChart, string_to_type
+from Engine.type import Type, TypeChart, string_to_type
 
 
 class TestTypeChart(unittest.TestCase):

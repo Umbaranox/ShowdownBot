@@ -1,5 +1,5 @@
 import unittest
-from Pokemon.pokemon import create_pokemon_objects_from_json, EnemyPokemon
+from Engine.pokemon import create_pokemon_objects_from_json, EnemyPokemon
 
 
 class TestPokemonCreation(unittest.TestCase):
@@ -95,8 +95,7 @@ class TestPokemonCreation(unittest.TestCase):
     def test_enemy_pokemon_creation_stats(self):
         enemy_pokemon = EnemyPokemon("Carbink", "90", "236/236")
 
-        expected_dict = {'hp': 50, 'attack': 50, 'defense': 150, 'special-attack': 50, 'special-defense': 150,
-                         'speed': 50}
+        expected_dict = {'hp': 50, 'atk': 50, 'def': 150, 'spa': 50, 'spd': 150, 'spe': 50}
         self.assertEqual(expected_dict, enemy_pokemon.stats)
 
     def test_pokemon_with_challenged_names(self):

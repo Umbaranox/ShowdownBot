@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from web_socket.sender import Sender
 import websockets
-from web_socket.com_manager import handle_showdown_messages
+from web_socket.communication_manager import handle_showdown_messages
 from web_socket.constant_variable import BOT_MODE
 
 
