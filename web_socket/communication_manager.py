@@ -4,6 +4,7 @@ from web_socket.constant_variable import BATTLES, BOT_MODE, FORMATS, ACTION
 from web_socket.sender import Sender
 from BattleBots.battle_bot import BattleBot
 from BattleBots.random_bot import RandomBot
+from BattleBots.greedy_bot import GreedyBot
 from web_socket.login import log_in, USERNAME, OWNER
 from web_socket import constant_variable
 
@@ -74,11 +75,11 @@ async def handle_showdown_battle_messages(message: str):
             if command == "init":
                 # Create an object to the battle and append it to BATTLES list
                 battle_id = message_parts[0].split("|")[0].split(">")[1]
-                battle = RandomBot(battle_id, sender)
+                battle = GreedyBot(battle_id, sender)
                 BATTLES.append(battle)
 
                 # Alert that the bot in the battle and start the timer
-                await sender.send_message(battle.battle_id, "Hey! BattleBot started!")
+                await sender.send_message(battle.battle_id, "Hey! The bot has started!")
                 await sender.send_message(battle.battle_id, "/timer on")
 
             elif command == "player":

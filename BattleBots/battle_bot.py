@@ -26,6 +26,7 @@ class BattleBot(ABC):
     Note:
         This class serves as a foundation for implementing specific bots that participate in battles.
     """
+
     def __init__(self, battle_id: str, sender):
         self.battle_id = battle_id
         self.player_id = None
@@ -34,6 +35,7 @@ class BattleBot(ABC):
         self.enemy_team = Team()
         self.curr_pokemon_data = None
         self.curr_pokemon_ref = None
+        self.enemy_pokemon = None
         self.active_moves = None
         # Data:
         self.turn = 0
@@ -108,8 +110,10 @@ class BattleBot(ABC):
 
         # Update the reference to the currently active Pokemon
         for pokemon in self.bot_team:
+            print(f'%%% {pokemon.name} is active? {pokemon.active}')
             if pokemon.active:
                 self.curr_pokemon_ref = pokemon
+                print("%%% done.")
 
     async def update_enemy_team(self, pokemon_name: str, level: str, condition: str) -> None:
         """
@@ -187,9 +191,9 @@ class BattleBot(ABC):
         Returns:
             bool: True if the move is valid, False otherwise.
         """
-        # print("Check move validity:", self.active_moves[value - 1].is_possible())
-        # Can't make a move with no pp or which is disabled
-        return self.active_moves[value - 1].is_possible()
+        if value not in [0, 1, 2, 3]:
+            raise ValueError(f'The index of the move - {value} - is bad!')
+        return self.active_moves[value].is_possible()
 
     async def make_switch(self, value: int):
         """
@@ -198,7 +202,7 @@ class BattleBot(ABC):
         Args:
             value (int): The index of the Pokemon to switch to.
         """
-        await self.sender.send_switch(self.battle_id, value)
+        await self.sender.send_switch(self.battle_id, value + 1)
 
     def switch_validity(self, value: int) -> bool:
         """
@@ -210,7 +214,11 @@ class BattleBot(ABC):
         Returns:
             bool: True if the switch is valid, False otherwise.
         """
-        chosen_pokemon = self.bot_team[value - 1]
+        if value not in [0, 1, 2, 3, 4, 5]:
+            raise ValueError(f'The index of the move - {value} - is bad!')
+        return self.active_moves[value].is_possible()
+
+        chosen_pokemon = self.bot_team[value]
 
         # Can't switch to a fainted pokemon
         if chosen_pokemon.curr_health == 0:

@@ -31,7 +31,10 @@ class Pokemon(ABC):
             print("There is a problem with the name", self.name)
 
     def set_types(self) -> list[str]:
-        return self.get_field_from_api("type", "types")
+        ans = self.get_field_from_api("type", "types")
+        if ans is None:
+            raise ValueError("Pokemon must have type")
+        return ans
 
     def __str__(self) -> str:
         return f"Name: {self.name}\nLevel: {self.level}\nCondition: {self.curr_health}/{self.max_health}"

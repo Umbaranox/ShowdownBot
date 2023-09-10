@@ -64,16 +64,28 @@ class Test(unittest.TestCase):
         self.assertEqual(self.enemy_pokemon.name, "Charizard")
         self.assertEqual(self.bot_pokemon.name, "Carbink")
 
-        print("B:", self.bot_pokemon.stats)
-        print("E:", self.enemy_pokemon.stats)
-
     def test_evaluate_attacking_move_utility(self):
-        utility_list = utility_calculator.evaluate_attacking_move_utility(self.bot_pokemon, self.known_moves, self.enemy_pokemon)
+        utility_list = utility_calculator.evaluate_attacking_move_utility(self.bot_pokemon, self.known_moves,
+                                                                          self.enemy_pokemon)
         self.assertEqual(len(utility_list), 4)
+
+        # Type checking
+        index = utility_list[0][0]
+        name = utility_list[0][1]
+        utility = utility_list[0][2]
+        self.assertEqual(type(index), int)
+        self.assertEqual(type(name), Move)
+        self.assertEqual(type(utility), float)
+
+        # Order is correct
+        self.assertLessEqual(utility_list[3][2], utility_list[2][2])
+        self.assertLessEqual(utility_list[2][2], utility_list[1][2])
+        self.assertLessEqual(utility_list[1][2], utility_list[0][2])
 
     def test_evaluate_attacking_move_utility_when_enemy_attack(self):
         # Now let the enemy be the attacker:
-        utility_list = utility_calculator.evaluate_attacking_move_utility(self.enemy_pokemon, self.known_moves, self.bot_pokemon)
+        utility_list = utility_calculator.evaluate_attacking_move_utility(self.enemy_pokemon, self.known_moves,
+                                                                          self.bot_pokemon)
         self.assertEqual(len(utility_list), 4)
 
     def test_throws_if_pok_attack_itself(self):
@@ -93,13 +105,17 @@ class Test(unittest.TestCase):
     # TODO: tests for evaluate_enemy_move
 
     def test_create_potential_moves(self):
+        # Assert enemy pokemon has no known moves:
+        self.assertEqual(len(self.enemy_pokemon.known_moves), 0)
+
+        # Call a function to create potential_moves
         potential_moves = utility_calculator.create_potential_moves(self.enemy_pokemon)
-        print("we got ", len(potential_moves))
 
         # Make sure that 2 potential moves created
         self.assertEqual(len(potential_moves), 2)
 
         # Make sure those moves didn't stay on the object
+        self.assertEqual(len(self.enemy_pokemon.known_moves), 0)
 
 
 if __name__ == '__main__':

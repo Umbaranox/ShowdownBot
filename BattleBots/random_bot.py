@@ -39,7 +39,7 @@ class RandomBot(BattleBot):
         if forced_action == ACTION.MOVE:
             # move
             while True:
-                random_number = random.randint(1, 4)
+                random_number = random.randint(0, 3)
                 if self.move_validity(random_number):
                     # Exit the loop when a valid pick is found
                     break
@@ -48,7 +48,7 @@ class RandomBot(BattleBot):
         else:
             # switch
             while True:
-                random_number = random.randint(1, 6)
+                random_number = random.randint(0, 5)
                 if self.switch_validity(random_number):
                     # Exit the loop when a valid pick is found
                     break
