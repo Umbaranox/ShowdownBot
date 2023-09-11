@@ -11,10 +11,10 @@ def evaluate_attacking_move_utility(active_pokemon: Pokemon, optional_moves: lis
         raise ValueError(f'Enemy Pokemon is None')
     if active_pokemon is enemy_pokemon:
         raise ValueError("Pokemon can't attack itself")
-    if active_pokemon.is_alive() or enemy_pokemon.is_alive():
-        print(f'Is {active_pokemon.name} the problem? {active_pokemon.is_alive()}')
-        print(f'Is {enemy_pokemon.name} the problem? {enemy_pokemon.is_alive()}')
-        raise ValueError("A fainted pokemon can't attack or be attacked")
+    # if active_pokemon.is_alive() or enemy_pokemon.is_alive():
+    #     print(f'Is {active_pokemon.name} the problem? {active_pokemon.is_alive()}')
+    #     print(f'Is {enemy_pokemon.name} the problem? {enemy_pokemon.is_alive()}')
+    #     raise ValueError("A fainted pokemon can't attack or be attacked")
 
     move_utilities = []  # Create an empty list to store move index, name, and utility tuples
 

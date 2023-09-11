@@ -32,7 +32,7 @@ class GreedyBot(BattleBot):
             while True:
                 best_switch_index = switch_utilities[best_option_switch_index][0]
 
-                if self.move_validity(best_switch_index):
+                if self.switch_validity(best_switch_index):
                     await super().make_switch(best_switch_index)
                     break
                 else:
@@ -58,6 +58,8 @@ class GreedyBot(BattleBot):
             while True:
                 print("switch_utilities:")
                 print(switch_utilities)
+                print("move_utilities:")
+                print(move_utilities)
                 # The first [] means the action, when [0] is the best action
                 # The second [] means: [0] for index, [1] for Move, [2] for utility
                 best_move_utility = move_utilities[best_option_move_index][2] + predicted_enemy_move_utility
@@ -69,9 +71,10 @@ class GreedyBot(BattleBot):
                     print("Better move...")
                     if self.move_validity(best_move_index):
                         await super().make_move(best_move_index)
-                        print(f'i wanted to use {best_move_index} which is {switch_utilities[best_option_switch_index][1].name}')
+                        print(f'i wanted to use {best_move_index} which is {move_utilities[best_option_switch_index][1].name}')
                         break
                     else:
+                        print(f'Couldnt use {move_utilities[best_option_switch_index][1].name}')
                         best_option_move_index += 1
                 else:
                     print("Better switch...")

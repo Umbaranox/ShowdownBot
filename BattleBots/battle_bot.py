@@ -146,6 +146,7 @@ class BattleBot(ABC):
             new_enemy_pokemon = EnemyPokemon(pokemon_name, level, condition)
             new_enemy_pokemon.active = True
             self.enemy_team.add(new_enemy_pokemon)
+            print(f'ADDED: {new_enemy_pokemon.name} to enemy team')
 
     async def make_team_order(self):
         """
@@ -179,7 +180,7 @@ class BattleBot(ABC):
         Args:
             value (int): The index of the move to make.
         """
-        await self.sender.send_move(self.battle_id, value)
+        await self.sender.send_move(self.battle_id, value + 1)
 
     def move_validity(self, value: int) -> bool:
         """
@@ -193,6 +194,11 @@ class BattleBot(ABC):
         """
         if value not in [0, 1, 2, 3]:
             raise ValueError(f'The index of the move - {value} - is bad!')
+
+        if len(self.active_moves) == 1:
+            # If there is only one move, it must be possible
+            return True
+
         return self.active_moves[value].is_possible()
 
     async def make_switch(self, value: int):
@@ -216,7 +222,6 @@ class BattleBot(ABC):
         """
         if value not in [0, 1, 2, 3, 4, 5]:
             raise ValueError(f'The index of the move - {value} - is bad!')
-        return self.active_moves[value].is_possible()
 
         chosen_pokemon = self.bot_team[value]
 
