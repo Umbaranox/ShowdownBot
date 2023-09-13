@@ -40,7 +40,7 @@ class Pokemon(ABC):
         return f"Name: {self.name}\nLevel: {self.level}\nCondition: {self.curr_health}/{self.max_health}"
 
     def is_alive(self) -> bool:
-        return self.curr_health == 0
+        return 0 < int(self.curr_health)
 
 
 class BotPokemon(Pokemon):

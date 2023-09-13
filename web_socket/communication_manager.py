@@ -136,9 +136,11 @@ async def handle_showdown_battle_messages(message: str):
 
             elif command == "error":
                 # Error doesn't mean necessary a crushed!
-                if "The active Pokémon is trapped" in rest:
-                    # Handle a case were an ability, move or item forced trapped
-                    await battle.make_action(sender, ACTION.MOVE)
+                for r in rest:
+                    if "The active Pokémon is trapped" in r:
+                        # Handle a case were an ability, move or item forced trapped
+                        await battle.make_action(sender, ACTION.MOVE)
+                        return
                 # Other error msgs that can be handled
                 else:
                     raise RuntimeError(*rest)

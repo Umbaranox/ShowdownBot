@@ -50,12 +50,12 @@ class BattleBot(ABC):
         """
         Get the count of bot's Pokemon that are not alive.
         """
-        return sum(1 for pokemon in self.bot_team if not pokemon.is_alive())
+        return sum(1 for pokemon in self.bot_team if pokemon.is_alive())
 
     def find_enemy_pokemon_by_name(self, pokemon_name):
-        found_pokemon = next((pokemon for pokemon in self.enemy_team.team if pokemon.name == pokemon_name), None)
+        found_pokemon = next((pokemon for pokemon in self.enemy_team.team if pokemon_name in pokemon.name), None)
         if found_pokemon is None:
-            raise RuntimeError("Error in looking for an enemy pokemon")
+            raise RuntimeError(f'Error in looking for {pokemon_name}, an enemy pokemon. We have only {[pokemon.name for pokemon in self.enemy_team.team]}')
         return found_pokemon
 
     # getters...
