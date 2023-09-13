@@ -1,7 +1,5 @@
 # requirements.txt
 
 # Required Python Packages
-asyncio
 websockets
 requests
-configparser

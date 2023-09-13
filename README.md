@@ -60,6 +60,7 @@ ShowdownBot/
 ### Dependencies
 1. Python 3.x
 2. Other dependencies are listed in the requirements.txt file.
+3. Two Showdown user accounts - one for yourself as the player and another for the bot.
 
 ### Contributing
 Contributions to ShowdownBot are welcome! If you have improvements or new features to propose, please follow these steps:
