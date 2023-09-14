@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from Engine.team import Team
 from Engine.pokemon import create_pokemon_objects_from_json, EnemyPokemon
 from Engine.move import create_active_moves_list
-from web_socket.constant_variable import ACTION
+from constant_variable import ACTION
 
 
 class BattleBot(ABC):

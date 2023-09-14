@@ -79,6 +79,7 @@ class Sender:
             battle_format (str): The desired battle format.
         """
         message = f'/challenge {player}, {battle_format}'
+        print("sent!!!")
         await self.send_message('', message)
 
     async def accept_challenge(self, player: str):

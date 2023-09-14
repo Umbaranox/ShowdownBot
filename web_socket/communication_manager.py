@@ -1,18 +1,18 @@
 """This file includes numerous print statements to facilitate thorough project tracking and monitoring during development."""
 import time
-from web_socket.constant_variable import BATTLES, BOT_MODE, FORMATS, ACTION
+from constant_variable import BATTLES, BOT_MODE, FORMATS, ACTION, SELECTED_BOT_TYPE, USERNAME, PASSWORD, PLAYER
 from web_socket.sender import Sender
 from BattleBots.battle_bot import BattleBot
 from BattleBots.random_bot import RandomBot
 from BattleBots.greedy_bot import GreedyBot
-from web_socket.login import log_in, USERNAME, OWNER
-from web_socket import constant_variable
+from web_socket.login import log_in
+import constant_variable
 
 
 async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
     """This function handles all the down messages and sends them to the correct function in the program.
         If the message is about battle, its sends it to handle_showdown_battle_messages
-        Specificly connect, start battling and send messages and commands."""
+        Specifically connect, start battling and send messages and commands."""
     sender = Sender()
     room, command, *rest = message.split('|')
     print("room: ", room)
@@ -25,16 +25,21 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
         await log_in(rest[0], rest[1])
 
     elif command == 'updateuser':
-        if USERNAME in rest[0]:
+        if USERNAME in rest[0].lower():
             if bot_mode == BOT_MODE.CHALLENGE_OWNER:
-                await sender.challenge_user(OWNER, FORMATS[0])
+                print("!!ch")
+                await sender.challenge_user(PLAYER, FORMATS[0])
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.ACCEPT_CHALLENGE:
-                await sender.accept_challenge(OWNER)
+                print("!!ac")
+                await sender.accept_challenge(PLAYER)
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.SEARCH:
+                print("!!se")
                 await sender.search_game_in_format(FORMATS[0])
                 constant_variable.CUR_BATTLES_COUNT += 1
+            else:
+                raise ValueError("Illegal mode")
 
         print("***: updateuser")
 
@@ -51,6 +56,15 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
 
     if "battle" in room:
         await handle_showdown_battle_messages(message)
+
+
+def create_bot_based_on_type(battle_id, sender):
+    if SELECTED_BOT_TYPE == 'random':
+        return RandomBot(battle_id, sender)
+    elif SELECTED_BOT_TYPE == 'greedy':
+        return GreedyBot(battle_id, sender)
+    else:
+        raise ValueError("Invalid BOT TYPE selected in config.ini")
 
 
 async def handle_showdown_battle_messages(message: str):
@@ -75,7 +89,7 @@ async def handle_showdown_battle_messages(message: str):
             if command == "init":
                 # Create an object to the battle and append it to BATTLES list
                 battle_id = message_parts[0].split("|")[0].split(">")[1]
-                battle = GreedyBot(battle_id, sender)
+                battle = create_bot_based_on_type(battle_id, sender)
                 BATTLES.append(battle)
 
                 # Alert that the bot in the battle and start the timer
@@ -83,7 +97,7 @@ async def handle_showdown_battle_messages(message: str):
                 await sender.send_message(battle.battle_id, "/timer on")
 
             elif command == "player":
-                if rest[1] == USERNAME:
+                if rest[1] == USERNAME.lower():
                     battle.player_id = rest[0]
                     battle.turn = int(rest[0].split('p')[1]) - 1
 

@@ -3,13 +3,7 @@ import configparser
 from pathlib import Path
 import requests
 from web_socket.sender import Sender
-
-# Load configuration settings from 'config.ini' file
-config = configparser.ConfigParser()
-config.read(Path('..').parent.absolute() / 'config.ini')
-USERNAME = config['bot']['username']
-PASSWORD = config['bot']['password']
-OWNER = config['bot']['owner']
+from constant_variable import USERNAME, PASSWORD
 
 
 async def log_in(challid: str, chall: str):

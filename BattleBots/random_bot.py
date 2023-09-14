@@ -1,6 +1,6 @@
 import random
 from BattleBots.battle_bot import BattleBot
-from web_socket.constant_variable import ACTION
+from constant_variable import ACTION
 
 
 class RandomBot(BattleBot):

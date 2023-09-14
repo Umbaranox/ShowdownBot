@@ -1,6 +1,4 @@
 import unittest
-from BattleBots.random_bot import RandomBot
-from web_socket.constant_variable import ACTION
 
 
 class TestBattleActions(unittest.TestCase):
