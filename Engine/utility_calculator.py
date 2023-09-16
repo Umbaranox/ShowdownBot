@@ -25,6 +25,11 @@ def evaluate_attacking_move_utility(attacking_pokemon: Pokemon, optional_moves: 
         raise ValueError(f'Enemy Pokemon is None')
     if attacking_pokemon is defending_pokemon:
         raise ValueError("Pokemon can't attack itself")
+    # Debug:
+    if not attacking_pokemon.is_alive():
+        print(f'{attacking_pokemon.name} is fainted')
+    if not defending_pokemon.is_alive():
+        print(f'{defending_pokemon.name} is fainted')
 
     move_utilities = []
 
@@ -82,7 +87,6 @@ def evaluate_enemy_move(active_pokemon: BotPokemon, enemy_pokemon: EnemyPokemon)
         list[(int, Move, float)]: A sorted list of tuples containing move index, move object, and utility,
         sorted in descending order of utility.
     """
-
     enemy_moves = enemy_pokemon.known_moves.copy()
 
     if len(enemy_pokemon.known_moves) < MAX_MOVES - 1:
@@ -158,3 +162,27 @@ def evaluate_switch_utility(active_pokemon: Pokemon, bot_team: list[Pokemon], pr
     sorted_switch_utilities = sorted(switch_utilities, key=lambda x: x[2], reverse=True)
 
     return sorted_switch_utilities
+
+
+def get_utilities(active_pokemon: BotPokemon, enemy_pokemon: EnemyPokemon, active_moves: list[Move], bot_team: list[Pokemon]):
+    """
+    Provides data based on those given functions for utility evaluation.
+        - This function calculates various utilities based on the provided data for decision-making in battles.
+    """
+    # Get the utility of each move the active Pokemon can use
+    active_moves_utilities = evaluate_attacking_move_utility(active_pokemon, active_moves, enemy_pokemon)
+
+    # Get the utility of each move the enemy has used and may use
+    enemy_moves_utilities = evaluate_enemy_move(active_pokemon, enemy_pokemon)
+
+    # Get the predicted move of the enemy
+    predicted_enemy_move = enemy_moves_utilities[0]
+
+    # Get its utility
+    predicted_enemy_move_utility = predicted_enemy_move[2]
+
+    # Get the utility of each switch based on the given stage
+    switch_utilities = evaluate_switch_utility(active_pokemon, bot_team, predicted_enemy_move, enemy_pokemon)
+
+    # Return all of those
+    return active_moves_utilities, predicted_enemy_move, predicted_enemy_move_utility, switch_utilities

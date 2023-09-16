@@ -46,16 +46,23 @@ class BattleBot(ABC):
     def get_enemy_team(self):
         return self.enemy_team
 
-    def get_lives_count_of_bot_pokemon(self) -> int:
+    @staticmethod
+    def get_lives_count_of_bot_pokemon(bot_team) -> int:
         """
         Get the count of bot's Pokemon that are not alive.
         """
-        return sum(1 for pokemon in self.bot_team if pokemon.is_alive())
+        return sum(1 for pokemon in bot_team if pokemon.is_alive())
 
-    def find_enemy_pokemon_by_name(self, pokemon_name):
-        found_pokemon = next((pokemon for pokemon in self.enemy_team.team if pokemon_name in pokemon.name), None)
+    @staticmethod
+    def find_enemy_pokemon_by_name(bot_team, pokemon_name):
+        found_pokemon = next((pokemon for pokemon in bot_team if pokemon_name in pokemon.name), None)
+
         if found_pokemon is None:
-            raise RuntimeError(f'Error in looking for {pokemon_name}, an enemy pokemon. We have only {[pokemon.name for pokemon in self.enemy_team.team]}')
+            raise ValueError(f'Error in looking for {pokemon_name}, an enemy pokemon. We have only {[pokemon.name for pokemon in bot_team]}')
+
+        elif not found_pokemon.is_alive():
+            print(f'Warning! {pokemon_name} found but he is fainted')
+
         return found_pokemon
 
     # getters...

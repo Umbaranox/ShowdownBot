@@ -121,8 +121,8 @@ async def handle_showdown_battle_messages(message: str):
 
             elif command == "turn":
                 print("started turn")
-                if battle.get_lives_count_of_bot_pokemon() == 1:
-                    # When having 1 left it can't be switched
+                if BattleBot.get_lives_count_of_bot_pokemon(battle.bot_team.team) == 1:
+                    # When having 1 left it can't be switched, so move is forced
                     await battle.make_action(sender, ACTION.MOVE)
                 elif '"maybeTrapped":true' in rest:
                     await battle.make_action(sender, ACTION.MOVE)
@@ -196,7 +196,7 @@ async def major_actions(battle, command, rest):
         else:
             # Get the current enemy_pokemon reference and updates its known moves.
             enemy_pokemon_name = rest[0][5:]
-            enemy_pokemon = battle.find_enemy_pokemon_by_name(enemy_pokemon_name)
+            enemy_pokemon = battle.find_enemy_pokemon_by_name(battle.bot_team, enemy_pokemon_name)
             move_name = rest[1]
             enemy_pokemon.update_enemy_moves(move_name)
         pass

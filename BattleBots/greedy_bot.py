@@ -1,5 +1,5 @@
 from BattleBots.battle_bot import BattleBot
-from Engine.utility_calculator import evaluate_attacking_move_utility, evaluate_enemy_move, evaluate_switch_utility
+from Engine.utility_calculator import evaluate_attacking_move_utility, evaluate_enemy_move, evaluate_switch_utility, get_utilities
 from constant_variable import ACTION
 
 
@@ -50,15 +50,12 @@ class GreedyBot(BattleBot):
         Raises:
             ValueError: If all moves or switches are not available.
         """
-        # Make utility calculation and extract variables
-        # The first  [] means the action, when [0] is the best action
-        # The second [] means: [0] for index, [1] for object, [2] for utility
-        move_utilities = evaluate_attacking_move_utility(self.curr_pokemon_ref, self.active_moves, self.enemy_pokemon)
-        predicted_enemy_move = evaluate_enemy_move(self.curr_pokemon_ref, self.enemy_pokemon)[0]
-        predicted_enemy_move_utility = predicted_enemy_move[2]
-        switch_utilities = evaluate_switch_utility(self.curr_pokemon_ref, self.bot_team, predicted_enemy_move, self.enemy_pokemon)
 
-        # Set 2 variables to point on the best move and switch indexes, starting by0
+        # Get the crucial data
+        move_utilities, predicted_enemy_move, predicted_enemy_move_utility, switch_utilities = \
+            get_utilities(self.curr_pokemon_ref, self.enemy_pokemon, self.active_moves, self.bot_team)
+
+        # Set 2 variables to point on the best move and switch indexes, starting by 0
         best_option_move_index = 0
         best_option_switch_index = 0
 

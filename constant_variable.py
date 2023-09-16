@@ -4,12 +4,21 @@ import configparser
 # Load configuration settings from 'config.ini' file
 config = configparser.ConfigParser()
 config.read('config.ini')
-USERNAME = config['bot']['username']
-PASSWORD = config['bot']['password']
-PLAYER = config['bot']['PLAYER']
-URI = config['env']['URI']
-SELECTED_BOT_MODE = config['Setting']['BOT_MODE']
-SELECTED_BOT_TYPE = config['Setting']['BOT_TYPE']
+try:
+    USERNAME = config['bot']['username']
+    PASSWORD = config['bot']['password']
+    PLAYER = config['bot']['PLAYER']
+    URI = config['env']['URI']
+    SELECTED_BOT_MODE = config['Setting']['BOT_MODE']
+    SELECTED_BOT_TYPE = config['Setting']['BOT_TYPE']
+except KeyError:
+    # Provide default values or handle missing configuration gracefully. Happens only in tests.
+    USERNAME = 'joshcoco'
+    PASSWORD = '123456'
+    PLAYER = 'mechhere'
+    URI = 'ws://sim.smogon.com:8000/showdown/websocket'
+    SELECTED_BOT_MODE = 'accept'
+    SELECTED_BOT_TYPE = 'greedy'
 
 
 class BOT_MODE(Enum):
