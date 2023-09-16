@@ -4,6 +4,10 @@
 
 ShowdownBot is a Python-based bot designed to play Pokemon battles in [Showdown](https://play.pokemonshowdown.com/). This project allows you to create and customize bots that can autonomously participate in Showdown battles.
 
+### Dependencies
+1. Python 3.x
+2. Other dependencies are listed in the requirements.txt file.
+
 ### Features
 * **Modular Design:** ShowdownBot is built with modularity in mind, making it easy to create custom bots with different behaviors.
 * **RandomBot**: Includes a sample bot called "RandomBot" that makes random battle decisions.
@@ -19,11 +23,20 @@ ShowdownBot is a Python-based bot designed to play Pokemon battles in [Showdown]
 `pip install -r requirements.txt`
 
 ### Usage
-To use ShowdownBot, follow these steps:
+To test ShowdownBot, follow these steps:
 
-1. Configure the bot's behavior by creating your custom bot class, inheriting from `BattleBot` and implementing the `make_action` method.
-2. Update the bot's logic in your custom bot class to make decisions during battles.
-3. Run the bot by initiating a battle on Showdown and providing the battle information to your bot.
+1. **Set Up Showdown Accounts:** Begin by creating two Showdown accounts - one for the bot and one for yourself. You will need to insert the bot account's username and password into the `config.ini` file, as well as specifying your username (under the "player" section). Ensure that all fields in the `config.ini` file are properly filled.
+
+2. **Configure Bot Mode:** In the `config.ini` file, you shall specify the BOT_MODE setting as "accept". This mode is required for testing.
+
+3. **Prepare Showdown Sessions:** Open two separate browser windows or use incognito mode to log in to both Showdown accounts.
+
+4. **Initiate a Challenge:** From your player account, challenge the bot by typing `/challenge <bot_username>, <battle_format>`. Replace `<bot_username>` with the bot's username and `<battle_format>` with your desired battle format.
+
+5. **Run ShowdownBot:** Launch ShowdownBot, which will automatically accept the challenge from your player account. Enjoy the show!
+
+By following these steps, you can effectively test and interact with ShowdownBot within the Showdown environment, ensuring a smooth and engaging experience.
+
 
 ### How it Works
 1. **Establishing Communication:** The system begins by creating a socket connection between the program and the Showdown protocol. This connection serves as the bridge for all communication with the Showdown server.
@@ -57,10 +70,6 @@ ShowdownBot/
 ├── config.ini
 └── README.md
 ```
-### Dependencies
-1. Python 3.x
-2. Other dependencies are listed in the requirements.txt file.
-3. Two Showdown user accounts - one for yourself as the player and another for the bot.
 
 ### Contributing
 Contributions to ShowdownBot are welcome! If you have improvements or new features to propose, please follow these steps:
