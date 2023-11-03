@@ -34,7 +34,7 @@ class GreedyBot(BattleBot):
 
         # If it wasn't found, it means there's a problem with the update method
         if curr_enemy_pokemon is None:
-            raise ValueError("Enemy pokemon is not found, although it is updated.")
+            raise ValueError(f'Enemy pokemon {pokemon_name} is not found, although it is updated. We have only {[pokemon.name for pokemon in self.enemy_team.team]}')
 
         # Update the self.enemy_pokemon field
         self.enemy_pokemon = curr_enemy_pokemon

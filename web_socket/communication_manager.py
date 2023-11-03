@@ -1,4 +1,5 @@
 """This file includes numerous print statements to facilitate thorough project tracking and monitoring during development."""
+import os
 import time
 from constant_variable import BATTLES, BOT_MODE, FORMATS, ACTION, SELECTED_BOT_TYPE, USERNAME, PASSWORD, PLAYER
 from web_socket.sender import Sender
@@ -21,35 +22,28 @@ async def handle_showdown_messages(message: str, bot_mode: BOT_MODE):
 
     if command == 'challstr':
         # If we got the challstr, we now can log in.
-        print("Lets connect")
         await log_in(rest[0], rest[1])
 
     elif command == 'updateuser':
         if USERNAME in rest[0].lower():
             if bot_mode == BOT_MODE.CHALLENGE_OWNER:
-                print("!!ch")
                 await sender.challenge_user(PLAYER, FORMATS[0])
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.ACCEPT_CHALLENGE:
-                print("!!ac")
                 await sender.accept_challenge(PLAYER)
                 constant_variable.CUR_BATTLES_COUNT += 1
             elif bot_mode == BOT_MODE.SEARCH:
-                print("!!se")
                 await sender.search_game_in_format(FORMATS[0])
                 constant_variable.CUR_BATTLES_COUNT += 1
             else:
                 raise ValueError("Illegal mode")
 
-        print("***: updateuser")
-
     elif command == 'deinit':
         if bot_mode == BOT_MODE.SEARCH and constant_variable.CUR_BATTLES_COUNT < constant_variable.MAX_BATTLES_COUNT:
             await sender.search_game_in_format(FORMATS[0])
-        print("***: deinit")
 
     elif command == 'pm':
-        print('***: pm')
+        pass
 
     else:
         print('***: other')
@@ -84,7 +78,6 @@ async def handle_showdown_battle_messages(message: str):
                 continue  # Go to the next iteration
 
             _, command, *rest = splitted_part
-            print("Inner command:", command)
 
             if command == "init":
                 # Create an object to the battle and append it to BATTLES list
@@ -104,14 +97,8 @@ async def handle_showdown_battle_messages(message: str):
             elif command == "request":
                 if rest[0] != '':
                     if len(rest[0]) == 1:
-                        print("###req:1")
-                        print(rest[1].split('\n')[1])
-                        print("###req:")
                         await battle.update_bot_team(rest[1].split('\n')[1])
                     else:
-                        print("###req:2")
-                        print(rest[0])
-                        print("###req:")
                         await battle.update_bot_team(rest[0])
 
             elif command == "teampreview":
@@ -120,33 +107,31 @@ async def handle_showdown_battle_messages(message: str):
                 print("end teampreview")
 
             elif command == "turn":
-                print("started turn")
-                if BattleBot.get_lives_count_of_bot_pokemon(battle.bot_team.team) == 1:
+                if BattleBot.get_lives_count_of_bot_pokemon(battle.bot_team) == 1:
                     # When having 1 left it can't be switched, so move is forced
                     await battle.make_action(sender, ACTION.MOVE)
                 elif '"maybeTrapped":true' in rest:
                     await battle.make_action(sender, ACTION.MOVE)
                 else:
                     await battle.make_action(sender)
-                print("end turn")
 
             elif command == "callback":
                 if rest[0] == "trapped":
-                    # await battle.make_move(make_best_move(battle))
-                    print("TRAPPED! force to make move")
+                    await battle.make_action(sender, ACTION.MOVE)
+
             elif command == "poke":
                 if battle.player_id not in rest[0]:
-                    print("Time to update enemy!")
                     await battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
-                    # print("started poke")
 
             elif command == "win":
-                if battle is None:
-                    print("BattleBot is None")
                 await sender.send_message(battle.battle_id, "GG!")
                 await sender.leave(battle.battle_id)
                 BATTLES.remove(battle)
-                # win function
+                if PLAYER.lower() in rest[-1].lower():
+                    result = 'LOST'
+                else:
+                    result = 'WIN'
+                save_battle_res(f'res/{SELECTED_BOT_TYPE}_log.txt', f'{result}, {battle_id}, {USERNAME} vs {PLAYER}')
 
             elif command == "error":
                 # Error doesn't mean necessary a crushed!
@@ -182,21 +167,18 @@ async def minor_actions(battle, command, rest):
 
 async def major_actions(battle, command, rest):
     if command == "switch":
-        print("--- used switch")
         if battle.player_id not in rest[0]:
-            print("--- got into if")
             await battle.update_enemy_team(*extract_argument_for_update_enemy_method(rest))
             # update enemy
             pass
 
     elif command == "move":
         if battle.player_id in rest[0]:
-            # print("Friendly", rest[0][5:], "used", rest[1], "against", rest[2][5:])
             pass
         else:
             # Get the current enemy_pokemon reference and updates its known moves.
             enemy_pokemon_name = rest[0][5:]
-            enemy_pokemon = battle.find_enemy_pokemon_by_name(battle.bot_team, enemy_pokemon_name)
+            enemy_pokemon = battle.find_enemy_pokemon_by_name(battle.enemy_team.team, enemy_pokemon_name)
             move_name = rest[1]
             enemy_pokemon.update_enemy_moves(move_name)
         pass
@@ -205,10 +187,32 @@ async def major_actions(battle, command, rest):
         pass
 
 
+def save_battle_res(file_path, line_to_add):
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        # If the file doesn't exist, create it
+        with open(file_path, 'w'): pass
+
+    # Open the file in append mode (a+)
+    with open(file_path, 'a+') as file:
+        # Move the file cursor to the beginning to ensure appending at the end
+        file.seek(0)
+
+        # Check if the file is empty, if so, add a newline
+        if not file.read(1):
+            file.write('\n')
+
+        # Move the file cursor back to the end
+        file.seek(0, 2)
+
+        # Add the line to the file
+        file.write(line_to_add + '\n')
+
+
 # ----------- Supportive functions ----------- #
 
 def extract_argument_for_update_enemy_method(rest):
-    name = rest[1].split(',')[0]
+    name = rest[1].split(',')[0].lower()
     level = rest[1].split(',')[1][2:]
     condition = rest[2]
     return name, level, condition

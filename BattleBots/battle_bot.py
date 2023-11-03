@@ -54,11 +54,12 @@ class BattleBot(ABC):
         return sum(1 for pokemon in bot_team if pokemon.is_alive())
 
     @staticmethod
-    def find_enemy_pokemon_by_name(bot_team, pokemon_name):
-        found_pokemon = next((pokemon for pokemon in bot_team if pokemon_name in pokemon.name), None)
+    def find_enemy_pokemon_by_name(team, pokemon_name):
+        pokemon_name = pokemon_name.lower()
+        found_pokemon = next((pokemon for pokemon in team if pokemon_name in pokemon.name), None)
 
         if found_pokemon is None:
-            raise ValueError(f'Error in looking for {pokemon_name}, an enemy pokemon. We have only {[pokemon.name for pokemon in bot_team]}')
+            raise ValueError(f'Error in looking for {pokemon_name}, an enemy pokemon. We have only {[pokemon.name for pokemon in team]}')
 
         elif not found_pokemon.is_alive():
             print(f'Warning! {pokemon_name} found but he is fainted')

@@ -8,7 +8,7 @@ MAX_MOVES = 4
 
 class Pokemon(ABC):
     def __init__(self, name, level, condition):
-        self.name = name
+        self.name = make_name_in_format(name)
         self.url = "https://pokeapi.co/api/v2/" + "pokemon/" + name.lower().replace(" ", "-")
         self.types = self.set_types()
         self.level = level
@@ -74,7 +74,7 @@ class BotPokemon(Pokemon):
 
 def create_pokemon_objects_from_json(json_data) -> list[BotPokemon]:
     """This function gets a json and create pokemons"""
-    # TODO: Right now, this function create 6 pokemons every turn. It'll be more eff to create only the changed objects.
+    # TODO: Right now, this function create 6 pokemons every turn. It might be more eff to create only the changed.
     pokemon_objects = []
 
     # Load JSON data
@@ -82,7 +82,7 @@ def create_pokemon_objects_from_json(json_data) -> list[BotPokemon]:
 
     if 'side' in data and 'pokemon' in data['side']:
         for pokemon_info in data['side']['pokemon']:
-            name = pokemon_info.get('ident', '')[4:]
+            name = pokemon_info.get('details', '').split(',')[0]
             level = pokemon_info.get('details', '').split(',')[1][-2:]
             condition = pokemon_info.get('condition', '')
             active = pokemon_info.get('active', False)
@@ -97,6 +97,28 @@ def create_pokemon_objects_from_json(json_data) -> list[BotPokemon]:
             pokemon_objects.append(bot_pokemon)
 
     return pokemon_objects
+
+
+def make_name_in_format(given_name: str) -> str:
+    """This function get a Pokemon name and adapt to the API name requirements. Mostly edge cases"""
+    if given_name[-1] == 'F':
+        given_name.replace('-F', '-female')
+    if given_name[-1] == 'M':
+        given_name.replace('-M', '-male')
+
+    if given_name in ['Toxtricity', 'toxtricity']:
+        given_name = "toxtricity-amped"
+
+    if given_name == 'Giratina':
+        given_name = "giratina-altered"
+
+    if given_name == 'eiscue':
+        given_name = "eiscue-ice"
+
+    # if given_name == 'urshifu':
+    #     given_name = "eiscue-ice"
+
+    return given_name.lower()
 
 
 class EnemyPokemon(Pokemon):
